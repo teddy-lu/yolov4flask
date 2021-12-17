@@ -1,0 +1,13 @@
+.env
+.gitignore
+docker-compose.yml
+Dockerfile
+test_img.py
+video.py
+/venv
+.idea
+.git
+data
+Dockerfile.gpu
+docker-compose-gpu.yml
+README.md

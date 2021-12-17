@@ -1,0 +1,83 @@
+#FROM nvidia/cuda-arm64:11.4.0-devel-ubuntu20.04
+FROM nvidia/cuda:11.4.2-cudnn8-devel-ubuntu20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+RUN set -ex \
+    && apt-get update \
+    && apt-get install --assume-yes apt-utils \
+    && apt-get -y install software-properties-common \
+    && add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main" \
+    && apt-get -y install gcc \
+    && apt-get -y install make \
+    && apt-get -y install cmake \
+    && apt-get -y install unzip \
+    && apt-get -y install pkg-config \
+    && apt-get -y install zlib1g-dev \
+    && apt-get -y install libssl-dev openssl \
+    && apt-get -y install libgl1-mesa-glx \
+    && apt-get -y install libglib2.0-dev libsm6 libxrender1 libxext6 \
+    && apt-get install -y build-essential yasm checkinstall git gfortran libswscale-dev libtbb2 libtbb-dev libjpeg-dev libpng-dev \
+        libtiff-dev libavformat-dev libpq-dev libxine2-dev libglew-dev libtiff5-dev zlib1g-dev libjpeg-dev libavcodec-dev \
+        libavformat-dev libavutil-dev libpostproc-dev libswscale-dev libeigen3-dev libtbb-dev libgtk2.0-dev \
+    && apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+    && apt-get install -y libjpeg8-dev libjasper-dev libtiff5-dev \
+        libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine2-dev libv4l-dev \
+    && apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgtk2.0-dev \
+        libtbb-dev libatlas-base-dev libfaac-dev libmp3lame-dev libtheora-dev libvorbis-dev libxvidcore-dev \
+        libopencore-amrnb-dev libopencore-amrwb-dev x264 v4l-utils
+
+RUN mkdir -p "/home/yolo_serv/out"
+
+COPY . /home/yolo_serv
+
+WORKDIR /home/yolo_serv
+
+VOLUME /home/yolo_serv/out
+
+# install Python
+RUN set -ex \
+    && ls -lah \
+    && cp ./Python-3.8.9.tgz /opt && cp ./opencv.zip /opt \
+    && cd /opt && tar xf Python-3.8.9.tgz \
+    && ./Python-3.8.9/configure --prefix=/usr/local/python3.8 \
+    && make && make install \
+    && ln -s /usr/local/python3.8/bin/python3.8 /usr/bin/python \
+    && ln -s /usr/local/python3.8/bin/pip3.8 /usr/bin/pip \
+    && whereis python \
+    && python -V \
+    && /usr/bin/python -m pip install --upgrade pip -i https://pypi.douban.com/simple/ \
+    && pip -V \
+    && /usr/bin/python -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())" \
+    && /usr/bin/python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+
+# 编译安装opencv开启支持GPU
+RUN set -ex \
+    && apt-get -y install python3-dev python3-numpy \
+    && cd /opt && unzip opencv.zip \
+    && cd opencv/build \
+    && ls -l /bin/sh \
+    && ./cmake.sh \
+    && ldconfig
+
+RUN set -ex \
+    && cd /opt/opencv/build && make -j"$(nproc)" && make install \
+    && ls -lah \
+    && find / -name "*.so" \
+    && python -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())' \
+    && cp $(find / -name "cv2.cpython-37m-x86_64-linux-gnu.so") $(python -c 'from distutils.sysconfig import get_python_lib; print("{}/cv2.so".format(get_python_lib()))')
+
+
+RUN set -ex \
+    && cd /home/yolo_serv \
+    && ls -lah \
+    && rm /home/yolo_serv/Python-3.8.9.tgz \
+    && cd /home/yolo_serv && cp .env.example .env \
+    && /usr/bin/python -m pip install -r requirements.txt -i https://pypi.douban.com/simple/ \
+    && pip list \
+    && echo -e "\033[42;37m Build Completed :).\033[0m\n"
+
+EXPOSE 8555
+
+ENTRYPOINT ["python", "app.py"]

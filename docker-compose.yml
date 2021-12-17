@@ -1,0 +1,15 @@
+version: '3'
+services:
+  yolo_detection:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: yolo_detection
+    env_file: .env
+#    network_mode: host
+    restart: always
+    ports:
+      - "8555:8555"
+    volumes:
+      - ./out:/home/yolo_serv/out:rw
+      - ./.env:/home/yolo_serv/.env:rw

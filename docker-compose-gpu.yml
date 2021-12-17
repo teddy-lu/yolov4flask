@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  yolo_detection:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.gpu
+    container_name: yolo_detection_gpu
+    env_file: .env
+#    network_mode: host
+    restart: always
+#    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    ports:
+      - "8555:8555"
+    volumes:
+      - ./out:/home/yolo_serv/out:rw
+      - ./.env:/home/yolo_serv/.env:rw
