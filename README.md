@@ -8,6 +8,8 @@
 Linux 部署
 首先预训练yolo，得到训练后的 权重文件，统一命名为yolo-obj.weights，并同时把训练的obj.names,yolov4.cfg文件放入本项目cfg下替换掉原来的文件，cfg目录结构如下
 
+为方便构建 建议自行下载opencv4.5的zip包 和python3.8的tgz以上的包在本项目根目录
+
 ```shell
 ├── cfg
 │   ├── yolov4.cfg
