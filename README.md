@@ -1,5 +1,7 @@
 # yolov4flask
 
+英文译文：[README_EN](./README_EN.md)
+___
 
 首先安装好docker
 
@@ -8,14 +10,14 @@
 Linux 部署
 首先预训练yolo，得到训练后的 权重文件，统一命名为yolo-obj.weights，并同时把训练的obj.names,yolov4.cfg文件放入本项目cfg下替换掉原来的文件，cfg目录结构如下
 
-为方便构建 建议自行下载opencv4.5的zip包 和python3.8的tgz以上的包在本项目根目录
-
 ```shell
 ├── cfg
 │   ├── yolov4.cfg
 │   ├── obj.names
 │   └── yolo-obj.weights
 ```
+
+为方便构建 建议自行下载opencv4.5的zip包 和python3.8的tgz以上的包在本项目根目录
 
 构建方法一(本地)：含测试文件
 
