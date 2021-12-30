@@ -5,6 +5,7 @@ First, you have to install docker
 [How to install docker](https://yeasy.gitbook.io/docker_practice/install/ubunt)
 
 Deploy with Linux 
+
 Pre-train yolo first and then you will receive a weighting file that is named yolo-obj.weights. At the same time, please place the training obj.names,yolov4.cfg file into this project cfg to substitute the original file, the cfg directory structure is as follows:
 
 ```shell
